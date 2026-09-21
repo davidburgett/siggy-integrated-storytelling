@@ -1,0 +1,179 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/sis_framework/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          String    @default("admin")
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ---- SIS Domain Models ----
+
+model Story {
+  id          String     @id @default(cuid())
+  title       String
+  description String     @default("")
+  coverImage  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parts       Part[]
+  partTypes   PartType[]
+  readers     Reader[]
+  readerStates ReaderState[]
+}
+
+model PartType {
+  id          String  @id @default(cuid())
+  storyId     String?
+  name        String
+  description String  @default("")
+  color       String  @default("#6366f1")
+  story       Story?  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  parts       Part[]
+
+  @@index([storyId])
+}
+
+model Part {
+  id              String           @id @default(cuid())
+  storyId         String
+  typeId          String?
+  title           String
+  content         String           @default("")
+  sortOrder       Int              @default(0)
+  tags            Json             @default("[]")
+  isPublished     Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  story           Story            @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  type            PartType?        @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  decisionPoints  DecisionPoint[]
+  readHistory     ReadHistory[]
+  readerStates    ReaderState[]    @relation("CurrentPart")
+  targetedChoices DecisionChoice[] @relation("TargetPart")
+
+  @@index([storyId])
+  @@index([typeId])
+}
+
+model DecisionPoint {
+  id        String           @id @default(cuid())
+  partId    String
+  prompt    String
+  sortOrder Int              @default(0)
+  part      Part             @relation(fields: [partId], references: [id], onDelete: Cascade)
+  choices   DecisionChoice[]
+
+  @@index([partId])
+}
+
+model DecisionChoice {
+  id              String        @id @default(cuid())
+  decisionPointId String
+  label           String
+  targetPartId    String?
+  decisionPoint   DecisionPoint @relation(fields: [decisionPointId], references: [id], onDelete: Cascade)
+  targetPart      Part?         @relation("TargetPart", fields: [targetPartId], references: [id], onDelete: SetNull)
+
+  @@index([decisionPointId])
+  @@index([targetPartId])
+}
+
+model ApiKey {
+  id         String   @id @default(cuid())
+  name       String
+  keyHash    String   @unique
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime?
+}
+
+model Reader {
+  id         String        @id @default(cuid())
+  externalId String
+  storyId    String
+  label      String?
+  createdAt  DateTime      @default(now())
+  story      Story         @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  history    ReadHistory[]
+  state      ReaderState?
+
+  @@unique([externalId, storyId])
+  @@index([storyId])
+}
+
+model ReadHistory {
+  id       String   @id @default(cuid())
+  readerId String
+  partId   String
+  readAt   DateTime @default(now())
+  reader   Reader   @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  part     Part     @relation(fields: [partId], references: [id], onDelete: Cascade)
+
+  @@index([readerId])
+  @@index([partId])
+}
+
+model ReaderState {
+  id            String   @id @default(cuid())
+  readerId      String   @unique
+  storyId       String
+  currentPartId String?
+  updatedAt     DateTime @updatedAt
+  reader        Reader   @relation(fields: [readerId], references: [id], onDelete: Cascade)
+  story         Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  currentPart   Part?    @relation("CurrentPart", fields: [currentPartId], references: [id], onDelete: SetNull)
+
+  @@index([storyId])
+}

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 96%;
+    --foreground: 240 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 245 58% 28%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 5% 90%;
+    --secondary-foreground: 240 10% 20%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 5% 43%;
+    --accent: 36 96% 50%;
+    --accent-foreground: 240 10% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 10%;
+    --border: 240 6% 85%;
+    --input: 240 6% 85%;
+    --ring: 245 58% 28%;
+    --radius: 0.625rem;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+  }
+
+  .dark {
+    --background: 240 10% 6%;
+    --foreground: 240 5% 90%;
+    --card: 240 10% 9%;
+    --card-foreground: 240 5% 90%;
+    --popover: 240 10% 9%;
+    --popover-foreground: 240 5% 90%;
+    --primary: 245 58% 55%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 5% 18%;
+    --secondary-foreground: 240 5% 85%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 57%;
+    --accent: 36 96% 50%;
+    --accent-foreground: 0 0% 26%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 10%;
+    --border: 240 5% 18%;
+    --input: 240 5% 18%;
+    --ring: 245 58% 55%;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* MD Editor dark overrides */
+.dark .w-md-editor {
+  --color-canvas-default: hsl(240 10% 9%) !important;
+  --color-fg-default: hsl(240 5% 90%) !important;
+  background-color: hsl(240 10% 9%) !important;
+  color: hsl(240 5% 90%) !important;
+}
+.dark .w-md-editor-toolbar {
+  background-color: hsl(240 10% 12%) !important;
+  border-color: hsl(240 5% 18%) !important;
+}
+.dark .wmde-markdown {
+  background-color: hsl(240 10% 9%) !important;
+  color: hsl(240 5% 90%) !important;
+}
