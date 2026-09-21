@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.build/
+*.db
+*.db-journal
+.env
+.env.local
+tsconfig.tsbuildinfo
+.yarn/
